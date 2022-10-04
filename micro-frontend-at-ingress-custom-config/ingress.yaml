@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  name: micro-frontend
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: main
+            port:
+              name: http
+        path: /
+        pathType: Prefix
+      - backend:
+          service:
+            name: alpha
+            port:
+              name: http
+        path: /alpha(/|$)(.*)
+        pathType: Prefix
+      - backend:
+          service:
+            name: beta
+            port:
+              name: http
+        path: /beta(/|$)(.*)
+        pathType: Prefix

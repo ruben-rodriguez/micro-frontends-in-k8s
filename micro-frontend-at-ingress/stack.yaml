@@ -1,0 +1,183 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ssi-service-1
+  namespace: default
+spec:
+  containers:
+  - name: common
+    image: nginx:1.21.6-alpine
+    imagePullPolicy: IfNotPresent
+    volumeMounts:
+      - name: nginx-index-file
+        mountPath: /usr/share/nginx/html/
+  volumes:
+  - name: nginx-index-file
+    configMap:
+      name: index-html-configmap-service-1
+  restartPolicy: Never
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app.kubernetes.io/instance: ssi-service-2
+    app.kubernetes.io/name: ssi-service-2
+  name: ssi-service-2
+  namespace: default
+spec:
+  containers:
+  - name: common
+    image: nginx:1.21.6-alpine
+    imagePullPolicy: IfNotPresent
+    volumeMounts:
+      - name: nginx-index-file
+        mountPath: /usr/share/nginx/html/
+  volumes:
+  - name: nginx-index-file
+    configMap:
+      name: index-html-configmap-service-2
+  restartPolicy: Never
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app.kubernetes.io/instance: ssi-service-3
+    app.kubernetes.io/name: ssi-service-3
+  name: ssi-service-3
+  namespace: default
+spec:
+  containers:
+  - name: common
+    image: nginx:1.21.6-alpine
+    imagePullPolicy: IfNotPresent
+    volumeMounts:
+      - name: nginx-index-file
+        mountPath: /usr/share/nginx/html/
+  volumes:
+  - name: nginx-index-file
+    configMap:
+      name: index-html-configmap-service-3
+  restartPolicy: Never
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: index-html-configmap-service-1
+  namespace: default
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <title>Hello World! Main page</title>
+      </head>
+      <body>
+        <h1>Hello World! Main page</h1>
+        <!--# set var="test" value="Hello stranger! SSI is on!" -->
+        <!--# echo var="test" -->
+        <!--# include virtual="/alpha" -->
+        <!--# include virtual="/beta" -->
+      </body>
+    </html>
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: index-html-configmap-service-2
+  namespace: default
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title></title>
+        <h2>Hello World! SSI page 1</h2>
+      </head>
+      <body>
+        <div id="test"></div>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      </body>
+    </html>
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: index-html-configmap-service-3
+  namespace: default
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title></title>
+        <h2>Hello World! SSI page 2</h2>
+      </head>
+      <body>
+        <div id="test"></div>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      </body>
+    </html>
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: ssi-service-1
+    app.kubernetes.io/name: ssi-service-1
+  name: ssi-service-1
+  namespace: default
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app.kubernetes.io/instance: ssi-service-1
+    app.kubernetes.io/name: ssi-service-1
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: ssi-service-2
+    app.kubernetes.io/name: ssi-service-2
+  name: ssi-service-2
+  namespace: default
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app.kubernetes.io/instance: ssi-service-2
+    app.kubernetes.io/name: ssi-service-2
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: ssi-service-3
+    app.kubernetes.io/name: ssi-service-3
+  name: ssi-service-3
+  namespace: default
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app.kubernetes.io/instance: ssi-service-3
+    app.kubernetes.io/name: ssi-service-3
+  type: ClusterIP
